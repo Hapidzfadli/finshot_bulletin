@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="header" class="py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <!--  Navbar -->
+            <div th:replace="~{fragments/navbar :: navbar}"></div>
+        </div>
+    </div>
+</header>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const options = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
+        const today = new Date();
+        document.getElementById('current-date').textContent = today.toLocaleDateString('ko-KR', options);
+    });
+</script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.finshot.codetest.domain.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -13,17 +14,30 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title", nullable = false, length = 100)
+    @NotNull
+    @Column(name = "title", nullable = false)
     private String title;
 
     @Lob
+    @NotNull
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "author", nullable = false, length = 10)
+    @NotNull
+    @Column(name = "author", nullable = false, length = 50)
     private String author;
 
+    @NotNull
+    @Column(name = "password", nullable = false)
+    private String password;
+
     private int views;
+    private boolean isDeleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+
+    public void incrementViewCount() {
+        this.views = this.views + 1;
+    }
 }
