@@ -200,17 +200,74 @@ body {
     }
 }
 
-/* Card Styles */
-.card {
-    border: none;
-    border-radius: 8px;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+/* Post Card */
+.post-card {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
-.card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+.post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
 }
+
+.post-card .card-title {
+    font-weight: 600;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    max-height: 2.8em;
+}
+
+.title-link {
+    color: #212529;
+    transition: color 0.2s ease;
+}
+
+.title-link:hover {
+    color: #3949ab;
+}
+
+.post-card .card-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 0.925rem;
+    max-height: 4.5em;
+}
+
+.avatar-circle {
+    width: 32px;
+    height: 32px;
+    background-color: #3949ab;
+    color: white;
+    text-align: center;
+    border-radius: 50%;
+    line-height: 32px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.author-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #495057;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.post-stats {
+    font-size: 0.8rem;
+}
+
+/* Card Styles */
 
 .card-header {
     border-top-left-radius: 8px !important;
@@ -289,14 +346,40 @@ body {
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-    .table {
-        font-size: 0.9rem;
+    .hero-section {
+        text-align: center;
+    }
+
+    .hero-content {
+        padding: 2rem 1rem !important;
+    }
+
+    .hero-content .btn {
+        display: block;
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .hero-content .d-flex {
+        flex-direction: column;
+    }
+
+    .section-title::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .section-title,
+    .features-section .text-muted {
+        text-align: center;
+        display: block;
     }
 
     .card-header h2 {
         font-size: 1.3rem;
     }
 }
+
 
 @media (max-width: 991.98px) {
     .navbar-nav {
@@ -323,6 +406,13 @@ body {
     }
 }
 
+
+/*Tooltip*/
+
+[title] {
+    position: relative;
+    cursor: pointer;
+}
 
 /* Scroll Behavior */
 .navbar.scrolled {

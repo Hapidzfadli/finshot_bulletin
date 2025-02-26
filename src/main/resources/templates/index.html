@@ -37,6 +37,86 @@
                     </svg>
                 </div>
             </div>
+
+            <div class="container mb-5">
+                <div class="row mb-4 align-items-center">
+                    <div class="col">
+                        <h2 class="section-title">
+                            <i class="bi bi-lightning-charge-fill text-warning me-2"></i>
+                            Recent Posts
+                        </h2>
+                        <p class="text-muted">Check out the latest conversations in our community</p>
+                    </div>
+                    <div class="col-auto">
+                        <a th:href="@{/posts}" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-right-circle me-1"></i>
+                            View All
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Empty State-->
+                    <div th:if="${recentPosts == null || recentPosts.empty}" class="col-12">
+                        <div class="empty-state bg-light rounded p-5 text-center">
+                            <img th:src="@{/images/empty-posts.svg}" alt="No posts" class="img-fluid mb-4" style="max-height: 150px;" />
+                            <h3 class="h4 mb-3">No posts yet</h3>
+                            <p class="text-muted mb-4">Be the first to share your thoughts with our community!</p>
+                            <a th:href="@{/posts/create}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Create First Post
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Post Cards -->
+                    <div th:if="${recentPosts != null}" th:each="post : ${recentPosts}" class="col-lg-4 col-md-6">
+                        <div class="card post-card h-100 border-0 shadow-sm">
+                            <div class="card-header bg-white border-0 pt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="post-number">
+                                        <span class="badge rounded-pill text-bg-primary">#<span th:text="${post.id}">1</span></span>
+                                    </div>
+                                    <div class="post-stats d-flex align-items-center">
+                                        <div class="views me-2" title="Views">
+                                            <i class="bi bi-eye me-1 text-secondary"></i>
+                                            <span class="text-secondary" th:text="${post.views}">0</span>
+                                        </div>
+                                        <div class="date" title="Created Date">
+                                            <i class="bi bi-calendar3 me-1 text-secondary"></i>
+                                            <span class="text-secondary" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2023-01-01</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-body pb-0">
+                                <h3 class="card-title h5 mb-3">
+                                    <a th:href="@{/posts/{id}(id=${post.id})}" class="text-decoration-none stretched-link title-link" th:title="${post.title}">
+                                        <span th:text="${#strings.abbreviate(post.title, 50)}">Post Title</span>
+                                    </a>
+                                </h3>
+
+                                <p class="card-text text-muted mb-3" th:text="${#strings.abbreviate(post.content, 100)}">
+                                    Post content preview...
+                                </p>
+                            </div>
+
+                            <div class="card-footer bg-white border-0 pt-0">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-2">
+                                        <span th:text="${#strings.substring(post.author, 0, 1).toUpperCase()}">A</span>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 author-name" th:title="${post.author}">
+                                            <span th:text="${#strings.abbreviate(post.author, 10)}">Author</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
 </body>
