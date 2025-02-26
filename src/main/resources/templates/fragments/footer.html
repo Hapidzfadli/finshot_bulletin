@@ -1,17 +1,123 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<footer th:fragment="footer" class="bg-dark text-white py-3 mt-5">
+<footer th:fragment="footer" class="footer bg-dark text-white py-5 mt-5">
     <div class="container">
+        <div class="row g-4">
+            <!-- About This Board -->
+            <div class="col-lg-4 col-md-6">
+                <h4 class="mb-4">About This Board</h4>
+                <p>Finshot Bulletin Board is a platform for community engagement and information sharing.</p>
+                <p>Join our growing community today and start sharing your thoughts with others!</p>
+                <button class="btn btn-outline-light mt-2" data-bs-toggle="modal" data-bs-target="#howItWorksModal">
+                    <i class="bi bi-info-circle me-2"></i>How It Works
+                </button>
+            </div>
+
+            <!-- Features -->
+            <div class="col-lg-4 col-md-6">
+                <h4 class="mb-4">Features</h4>
+                <ul class="list-unstyled footer-list">
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Create posts with a secure password
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Browse and read community content
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Edit or delete your own posts
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Track post popularity through view counts
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Quick Links & Social Media -->
+            <div class="col-lg-4 col-md-12">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4 class="mb-4">Quick Links</h4>
+                        <ul class="list-unstyled footer-list">
+                            <li class="mb-2">
+                                <a th:href="@{/}" class="text-white text-decoration-none">
+                                    <i class="bi bi-house-door me-2"></i>Home
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a th:href="@{/posts}" class="text-white text-decoration-none">
+                                    <i class="bi bi-file-text me-2"></i>Posts
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <a th:href="@{/posts/create}" class="text-white text-decoration-none">
+                                    <i class="bi bi-plus-circle me-2"></i>Create Post
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-6">
+                        <h4 class="mb-4">Connect With Us</h4>
+                        <div class="social-icons-footer">
+                            <a href="#" class="text-white me-3 fs-5" title="Facebook">
+                                <i class="bi bi-facebook"></i>
+                            </a>
+                            <a href="#" class="text-white me-3 fs-5" title="Twitter">
+                                <i class="bi bi-twitter-x"></i>
+                            </a>
+                            <a href="#" class="text-white me-3 fs-5" title="Instagram">
+                                <i class="bi bi-instagram"></i>
+                            </a>
+                            <a href="#" class="text-white fs-5" title="LinkedIn">
+                                <i class="bi bi-linkedin"></i>
+                            </a>
+                        </div>
+                        <div class="mt-4">
+                            <p class="mb-1">Have questions or feedback?</p>
+                            <a href="mailto:info@finshot.com" class="text-white text-decoration-none">
+                                <i class="bi bi-envelope-fill me-2"></i>info@finshot.com
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-4 bg-light opacity-25">
+
         <div class="row">
             <div class="col-md-6">
-                <p class="mb-0">&copy; hapidzfadli</p>
+                <p class="mb-0">&copy; 2023 Finshot Bulletin Board. All rights reserved.</p>
             </div>
             <div class="col-md-6 text-md-end">
-                <p class="mb-0">Made with Spring Boot, Thymeleaf, and Bootstrap</p>
+                <p class="mb-0 text-light">Made with <i class="bi bi-heart-fill text-danger"></i> using Spring Boot, Thymeleaf, and Bootstrap</p>
             </div>
         </div>
     </div>
 </footer>
+
+<style>
+    .footer-list li {
+        transition: transform 0.2s ease;
+    }
+
+    .footer-list li:hover {
+        transform: translateX(5px);
+    }
+
+    .social-icons-footer a {
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .social-icons-footer a:hover {
+        transform: translateY(-3px);
+        color: #3949ab !important;
+    }
+</style>
 </body>
 </html>

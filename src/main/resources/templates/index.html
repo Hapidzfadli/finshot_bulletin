@@ -1,115 +1,43 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
     <title>Finshot Bulletin Board</title>
 </head>
 <body>
-<div th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
-    <section>
-        <div class="jumbotron bg-light p-5 rounded-3 mb-4">
-            <div class="container-fluid">
-                <h1 class="display-4">Welcome to Finshot Bulletin Board</h1>
-                <p class="lead">A simple and effective platform to share your thoughts with the community.</p>
-                <hr class="my-4">
-                <p>Browse existing posts or create your own to join the conversation.</p>
-                <div class="d-flex gap-2 mt-4">
-                    <a class="btn btn-primary btn-lg" th:href="@{/posts}" role="button">View Posts</a>
-                    <a class="btn btn-outline-primary btn-lg" th:href="@{/posts/create}" role="button">Create Post</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-light">
-                        <h3 class="h5 mb-0">Recent Posts</h3>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="list-group list-group-flush">
-                            <div th:if="${recentPosts == null}" class="list-group-item py-4 text-center">
-                                <p class="mb-0 text-muted">No posts available yet. Be the first to create one!</p>
-                            </div>
-                            <a th:if="${recentPosts != null}" th:each="post : ${recentPosts}"
-                               th:href="@{/posts/{id}(id=${post.id})}"
-                               class="list-group-item list-group-item-action">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1" th:text="${post.title}">Post Title</h5>
-                                    <small th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2023-01-01</small>
+    <div th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+        <section>
+            <div class="hero-section position-relative mb-5">
+                <div class="hero-bg"></div>
+                <div class="container position-relative z-1">
+                    <div class="row align-items min-vh-50">
+                        <div class="col-md-7">
+                            <div class="hero-content text-white p-4">
+                                <h1 class="display-4 fw-bold mb-3"> Share Your Thoughts With The World</h1>
+                                <p class="lead mb-4">Discover new ideas or share your own on our bulletin board</p>
+                                <div class="d-flex gap-3 mt-4">
+                                    <a class="btn btn-primary btn-lg shadow-sm" th:href="@{/posts}">
+                                        <i class="bi bi-clipboard-data me-2"></i>Browse Posts
+                                    </a>
+                                    <a class="btn btn-light btn-lg shadow-sm" th:href="@{/posts/create}">
+                                        <i class="bi bi-pencil-square me-2"></i>Create Post
+                                    </a>
                                 </div>
-                                <p class="mb-1 text-truncate" th:text="${post.content}">Post content preview...</p>
-                                <small class="text-muted">
-                                    By <span th:text="${post.author}">Author</span> •
-                                    <span th:text="${post.views}">0</span> views
-                                </small>
-                            </a>
+                            </div>
+                        </div>
+                        <div class="col-md-5 d-none d-md-block">
+                            <div class="hero-image">
+                                <img th:src="@{/images/bulletin-illustration.svg}" alt="Bulletin Board" class="img-fluid" />
+                            </div>
                         </div>
                     </div>
-                    <div class="card-footer bg-white text-center">
-                        <a th:href="@{/posts}" class="btn btn-sm btn-outline-primary">View All Posts</a>
-                    </div>
+                </div>
+                <div class="hero-shape-bottom">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                        <path fill="#ffffff" d="M600,112.77C268.63,112.77,0,65.52,0,7.23V120H1200V7.23C1200,65.52,931.37,112.77,600,112.77Z"></path>
+                    </svg>
                 </div>
             </div>
-
-            <div class="col-md-4">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-light">
-                        <h3 class="h5 mb-0">About This Board</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>Finshot Bulletin Board is a platform for community engagement and information sharing.</p>
-                        <p>Our features include:</p>
-                        <ul>
-                            <li>Create posts with a secure password</li>
-                            <li>Browse and read community content</li>
-                            <li>Edit or delete your own posts</li>
-                            <li>Track post popularity through view counts</li>
-                        </ul>
-                        <p class="mb-0 text-muted fst-italic">Join our growing community today!</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- How It Works Modal -->
-        <div class="modal fade" id="howItWorksModal" tabindex="-1" aria-labelledby="howItWorksModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="howItWorksModalLabel">How Finshot Bulletin Board Works</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <h6>Browsing Posts</h6>
-                        <p>Visit the Posts page to see all available posts. Click on any post title to view its full content.</p>
-
-                        <h6>Creating a Post</h6>
-                        <p>To create a post:</p>
-                        <ol>
-                            <li>Click "Create Post" in the navigation menu</li>
-                            <li>Fill in your name, a title, and the content</li>
-                            <li>Create a password (you'll need this to edit or delete later)</li>
-                            <li>Click "Create Post" to publish</li>
-                        </ol>
-
-                        <h6>Editing or Deleting Posts</h6>
-                        <p>When viewing your post, you'll see Edit and Delete buttons. Clicking either will prompt you for the password you created when posting.</p>
-
-                        <h6>Post Guidelines</h6>
-                        <ul>
-                            <li>Titles: Maximum 50 Korean characters or 100 English characters</li>
-                            <li>Author names: Maximum 10 characters</li>
-                            <li>Be respectful and considerate of others in your posts</li>
-                            <li>Inappropriate content may be removed</li>
-                        </ul>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got It!</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
+        </section>
+    </div>
 </body>
 </html>
