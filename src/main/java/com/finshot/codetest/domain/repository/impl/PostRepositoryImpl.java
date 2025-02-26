@@ -28,4 +28,9 @@ public class PostRepositoryImpl implements PostRepository {
     public void save(Post post) {
         postMapper.save(post);
     }
+
+    @Override
+    public void incrementViewCount(Long id) {
+        postMapper.incrementViewCount(id);
+    }
 }

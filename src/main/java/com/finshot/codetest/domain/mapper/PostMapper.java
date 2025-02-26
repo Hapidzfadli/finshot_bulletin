@@ -7,17 +7,24 @@ import java.util.List;
 
 @Mapper
 public interface PostMapper {
-    @Select("SELECT * FROM posts ORDER BY created_at DESC")
+    @Select("SELECT id, title, content, author, password, views, is_deleted AS isDeleted, " +
+            "created_at AS createdAt, updated_at AS updatedAt " +
+            "FROM posts ORDER BY created_at DESC")
     List<Post> getAllPosts();
 
-    @Select("SELECT * FROM posts WHERE id = #{id}")
+    @Select("SELECT id, title, content, author, password, views, is_deleted AS isDeleted, " +
+            "created_at AS createdAt, updated_at AS updatedAt " +
+            "FROM posts WHERE id = #{id}")
     Post getPostById(Long id);
 
-    @Insert("INSERT INTO posts (title, content, author, password, views, is_deleted, created_at, updated_at) VALUES (#{title}, #{content}, #{author}, #{password}, #{views}, #{isDeleted}, #{createdAt}, #{updatedAt})")
+    @Insert("INSERT INTO posts (title, content, author, password, views, is_deleted, created_at, updated_at) " +
+            "VALUES (#{title}, #{content}, #{author}, #{password}, #{views}, #{isDeleted}, #{createdAt}, #{updatedAt})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insertPost(Post post);
 
-    @Update("UPDATE posts SET title = #{title}, content = #{content}, author = #{author}, views = #{views}, is_deleted = #{isDeleted}, created_at = #{createdAt}, updated_at = #{updatedAt} WHERE id = #{id}")
+    @Update("UPDATE posts SET title = #{title}, content = #{content}, author = #{author}, " +
+            "views = #{views}, is_deleted = #{isDeleted}, created_at = #{createdAt}, updated_at = #{updatedAt} " +
+            "WHERE id = #{id}")
     void updatePost(Post post);
 
     default void save(Post post) {
@@ -27,4 +34,7 @@ public interface PostMapper {
             updatePost(post);
         }
     }
+
+    @Update("UPDATE posts SET views = views + 1 WHERE id = #{id}")
+    void incrementViewCount(Long id);
 }

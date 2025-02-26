@@ -28,18 +28,14 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<Post> getRecentPosts(int limit) {
         return postRepository.getAllPosts().stream()
+                .filter(post -> !post.isDeleted())
                 .limit(limit)
                 .collect(Collectors.toList());
     }
 
     @Override
     public void incrementViewCount(Long id) {
-        Post post = postRepository.getPostById(id);
-
-        if (post != null && !post.isDeleted()) {
-            post.incrementViewCount();
-            postRepository.save(post);
-        }
+        postRepository.incrementViewCount(id);
     }
 
     @Override

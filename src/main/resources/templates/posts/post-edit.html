@@ -1,11 +1,215 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit</title>
+    <title>Edit Post</title>
 </head>
 <body>
-    <h1>Hello, Edit!</h1>
+<div th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+    <section>
+        <div class="container-fluid bg-light rounded-3 p-4 mb-4 shadow-sm">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="section-title mb-0">
+                        <i class="bi bi-pencil-square text-primary me-2"></i>
+                        Edit Post
+                    </h2>
+                    <p class="text-muted mt-2 mb-0">Update your post content</p>
+                </div>
+                <div class="col-auto">
+                    <a th:href="@{/posts/{id}(id=${post.id})}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Post
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <form th:action="@{/posts/{id}/update(id=${post.id})}" method="post" id="updatePostForm">
+                            <input type="hidden" name="id" th:value="${post.id}" />
+
+                            <div class="mb-4">
+                                <label for="title" class="form-label fw-bold">Post Title <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-lg" id="title" name="title"
+                                       th:value="${post.title}" required placeholder="Enter a title for your post">
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="author" class="form-label fw-bold">
+                                        Author Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="author" name="author"
+                                           th:value="${post.author}" required placeholder="Enter your name" readonly>
+                                    <div class="form-text">Author name cannot be changed</div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label for="password" class="form-label fw-bold">
+                                        Password <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="password" name="password"
+                                               required minlength="4" th:value="${post.password}"
+                                               placeholder="Confirm your password">
+                                        <button class="btn btn-outline-secondary toggle-password"
+                                                type="button" tabindex="-1">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="content" class="form-label fw-bold">Post Content <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="content" name="content" rows="12"
+                                          required placeholder="Write your post content here" th:text="${post.content}"></textarea>
+                            </div>
+
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a th:href="@{/posts/{id}(id=${post.id})}" class="btn btn-outline-secondary px-4">
+                                    <i class="bi bi-x-circle me-2"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="bi bi-save me-2"></i>Update Post
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm mb-4 bg-light">
+                    <div class="card-body p-4">
+                        <h5 class="card-title">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Editing Guidelines
+                        </h5>
+                        <hr>
+                        <div class="guidelines">
+                            <div class="guideline-item mb-3">
+                                <div class="d-flex">
+                                    <div class="me-3 text-primary">
+                                        <i class="bi bi-1-circle-fill fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Keep it Respectful</h6>
+                                        <p class="small text-muted mb-0">Be considerate and respectful to others in your posts.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="guideline-item mb-3">
+                                <div class="d-flex">
+                                    <div class="me-3 text-primary">
+                                        <i class="bi bi-2-circle-fill fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Be Clear and Concise</h6>
+                                        <p class="small text-muted mb-0">Choose a descriptive title and organize your thoughts clearly.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="guideline-item mb-3">
+                                <div class="d-flex">
+                                    <div class="me-3 text-warning">
+                                        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Edit History</h6>
+                                        <p class="small text-muted mb-0">Each edit will be recorded with a timestamp visible to readers.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Password toggle functionality
+        const togglePasswordBtn = document.querySelector('.toggle-password');
+        const passwordInput = document.getElementById('password');
+
+        if (togglePasswordBtn && passwordInput) {
+            togglePasswordBtn.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('bi-eye');
+                this.querySelector('i').classList.toggle('bi-eye-slash');
+            });
+        }
+
+        // Form validation
+        const form = document.getElementById('updatePostForm');
+
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                // Reset previous validation states
+                form.querySelectorAll('.is-invalid').forEach(element => {
+                    element.classList.remove('is-invalid');
+                    const feedback = element.nextElementSibling;
+                    if (feedback && feedback.classList.contains('invalid-feedback')) {
+                        feedback.remove();
+                    }
+                });
+
+                let isValid = true;
+
+                // Validate title
+                const titleInput = document.getElementById('title');
+                if (!titleInput.value.trim()) {
+                    showError(titleInput, 'Please enter a post title');
+                    isValid = false;
+                }
+
+                // Validate password
+                if (!passwordInput.value.trim()) {
+                    showError(passwordInput.parentElement, 'Please enter your password', passwordInput);
+                    isValid = false;
+                } else if (passwordInput.value.length < 4) {
+                    showError(passwordInput.parentElement, 'Password must be at least 4 characters', passwordInput);
+                    isValid = false;
+                }
+
+                // Validate content
+                const contentInput = document.getElementById('content');
+                if (!contentInput.value.trim()) {
+                    showError(contentInput, 'Please enter your post content');
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    event.preventDefault();
+
+                    // Scroll to first error
+                    const firstError = form.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.focus();
+                    }
+                }
+            });
+        }
+
+        function showError(element, message, focusElement) {
+            const target = focusElement || element;
+            target.classList.add('is-invalid');
+
+            const feedbackElement = document.createElement('div');
+            feedbackElement.className = 'invalid-feedback';
+            feedbackElement.textContent = message;
+
+            element.insertAdjacentElement('afterend', feedbackElement);
+        }
+    });
+</script>
 </body>
 </html>

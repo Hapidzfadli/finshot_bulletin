@@ -85,7 +85,7 @@
 
             <!-- Post Content -->
             <div class="card-body py-4">
-                <div class="post-content" th:utext="${#strings.replace(#strings.escapeXml(post.content), '&#10;', '<br>')}">
+                <div class="post-content" th:text="${post.content}">
                     Post content goes here...
                 </div>
             </div>
