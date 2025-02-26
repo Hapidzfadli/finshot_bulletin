@@ -3,6 +3,7 @@ package com.finshot.codetest.api;
 import com.finshot.codetest.app.service.PostService;
 import com.finshot.codetest.domain.model.Post;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,24 +16,29 @@ public class PostController {
     @Autowired
     private PostService postService;
 
+    private static final int PAGE_SIZE = 9; // 9 cards per page (3x3 grid)
 
     @GetMapping("/")
     public String index(Model model) {
-        List<Post> recentPosts = postService.getRecentPosts(5);
+        List<Post> recentPosts = postService.getRecentPosts(6);
         model.addAttribute("recentPosts", recentPosts);
         return "index";
     }
 
     @GetMapping("/posts")
-    public String listPosts(Model model) {
-        List<Post> posts = postService.getAllPosts();
-        model.addAttribute("posts", posts);
+    public String listPosts(Model model, @RequestParam(defaultValue = "0") int page) {
+        // Get a page of posts
+        Page<Post> postsPage = postService.getPagedPosts(page, PAGE_SIZE);
+
+        model.addAttribute("posts", postsPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", postsPage.getTotalPages());
+
         return "posts/post-list";
     }
 
     @GetMapping("/posts/{id}")
     public String getPostById(Model model, @PathVariable Long id) {
-
         Post post = postService.getPostById(id);
 
         if(post == null || post.isDeleted()){

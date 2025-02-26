@@ -1,11 +1,119 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Post List</title>
+    <title>Posts</title>
 </head>
 <body>
 <div th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
-    <section></section>
+    <section>
+        <div class="container-fluid bg-light rounded-3 p-4 mb-4 shadow-sm">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="section-title mb-0">
+                        <i class="bi bi-file-text text-primary me-2"></i>
+                        Bulletin Board Posts
+                    </h2>
+                    <p class="text-muted mt-2 mb-0">Browse all posts from our community</p>
+                </div>
+                <div class="col-auto">
+                    <a th:href="@{/posts/create}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Create New Post
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State (No Posts) -->
+        <div th:if="${posts == null || posts.empty}" class="text-center py-5">
+            <img th:src="@{/images/empty-posts.svg}" alt="No posts" class="img-fluid mb-4" style="max-height: 200px;">
+            <h3 class="h4 mb-3">No posts yet</h3>
+            <p class="text-muted mb-4">Be the first to share your thoughts with our community!</p>
+            <a th:href="@{/posts/create}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Create First Post
+            </a>
+        </div>
+
+        <!-- Posts as Cards with Grid Layout -->
+        <div th:if="${posts != null && !posts.empty}" class="mb-4">
+            <div class="row g-4">
+                <!-- Post Cards -->
+                <div th:each="post : ${posts}" th:unless="${post.deleted}" class="col-lg-4 col-md-6">
+                    <div class="card post-card h-100 border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 pt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="post-number">
+                                    <span class="badge rounded-pill text-bg-primary">#<span th:text="${post.id}">1</span></span>
+                                </div>
+                                <div class="post-stats d-flex align-items-center">
+                                    <div class="views me-2" title="Views">
+                                        <i class="bi bi-eye me-1 text-secondary"></i>
+                                        <span class="text-secondary" th:text="${post.views}">0</span>
+                                    </div>
+                                    <div class="date" title="Created Date">
+                                        <i class="bi bi-calendar3 me-1 text-secondary"></i>
+                                        <span class="text-secondary" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2023-01-01</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body pb-0">
+                            <h3 class="card-title h5 mb-3">
+                                <a th:href="@{/posts/{id}(id=${post.id})}" class="text-decoration-none stretched-link title-link" th:title="${post.title}">
+                                    <span th:text="${#strings.abbreviate(post.title, 50)}">Post Title</span>
+                                </a>
+                            </h3>
+
+                            <p class="card-text text-muted mb-3" th:text="${#strings.abbreviate(post.content, 100)}">
+                                Post content preview...
+                            </p>
+                        </div>
+
+                        <div class="card-footer bg-white border-0 pt-0">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle me-2">
+                                    <span th:text="${#strings.substring(post.author, 0, 1).toUpperCase()}">A</span>
+                                </div>
+                                <div>
+                                    <p class="mb-0 author-name" th:title="${post.author}">
+                                        <span th:text="${#strings.abbreviate(post.author, 10)}">Author</span>
+                                    </p>
+                                    <small class="text-muted" th:if="${post.updatedAt != null}">
+                                        <i class="bi bi-pencil-fill me-1"></i>Edited
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation" class="my-4">
+                <ul class="pagination justify-content-center" th:if="${totalPages > 1}">
+                    <!-- Previous button -->
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                        <a class="page-link" th:href="@{/posts(page=${currentPage - 1})}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+
+                    <!-- Page numbers -->
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${currentPage == i} ? 'active' : ''">
+                        <a class="page-link" th:href="@{/posts(page=${i})}" th:text="${i + 1}">1</a>
+                    </li>
+
+                    <!-- Next button -->
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                        <a class="page-link" th:href="@{/posts(page=${currentPage + 1})}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </section>
 </div>
 </body>
 </html>

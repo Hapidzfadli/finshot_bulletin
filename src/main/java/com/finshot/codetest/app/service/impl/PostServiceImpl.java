@@ -4,6 +4,10 @@ import com.finshot.codetest.app.service.PostService;
 import com.finshot.codetest.domain.model.Post;
 import com.finshot.codetest.domain.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,6 +22,27 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<Post> getAllPosts() {
         return postRepository.getAllPosts();
+    }
+
+    @Override
+    public Page<Post> getPagedPosts(int page, int size) {
+        List<Post> allPosts = getAllPosts();
+
+        // Perform manual pagination
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, allPosts.size());
+
+        // Prevent out of bounds
+        if (fromIndex >= allPosts.size()) {
+            fromIndex = 0;
+            toIndex = Math.min(size, allPosts.size());
+        }
+
+        List<Post> pageContent = allPosts.subList(fromIndex, toIndex);
+
+        // Create a Page object
+        Pageable pageable = PageRequest.of(page, size);
+        return new PageImpl<>(pageContent, pageable, allPosts.size());
     }
 
     @Override
