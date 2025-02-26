@@ -76,7 +76,7 @@ public class PostServiceImpl implements PostService {
             if(existingPost == null || existingPost.isDeleted()){
                 throw new IllegalArgumentException("Post not found");
             }
-
+            post.setCreatedAt(existingPost.getCreatedAt());
             post.setUpdatedAt(LocalDateTime.now());
         }
 
