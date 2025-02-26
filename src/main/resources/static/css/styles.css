@@ -318,6 +318,50 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(57, 73, 171, 0.25);
 }
 
+.form-control-lg {
+    font-weight: 500;
+}
+/* Guidelines Styling */
+.guideline-item {
+    transition: all 0.2s ease;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.guideline-item:hover {
+    background-color: rgba(57, 73, 171, 0.1);
+}
+
+/* Preview Card Styling */
+.preview-card {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.preview-card.visible {
+    opacity: 1;
+}
+
+.preview-title {
+    font-size: 1.25rem;
+    word-break: break-word;
+}
+
+.preview-content {
+    max-height: 150px;
+    overflow: hidden;
+    position: relative;
+}
+
+.preview-content::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
+}
 /* Post Content Styles */
 .post-content {
     line-height: 1.8;

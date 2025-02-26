@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Post</title>
+</head>
+<body>
+<div th:replace="~{fragments/layout :: layout(~{::title}, ~{::section})}">
+    <section>
+        <div class="container-fluid bg-light rounded-3 p-4 mb-4 shadow-sm">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="section-title mb-0">
+                        <i class="bi bi-pencil-square text-primary me-2"></i>
+                        Create New Post
+                    </h2>
+                    <p class="text-muted mt-2 mb-0">Share your thoughts with the community</p>
+                </div>
+                <div class="col-auto">
+                    <a th:href="@{/posts}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Posts
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <form th:action="@{/posts/create}" method="post" id="createPostForm">
+                            <div class="mb-4">
+                                <label for="title" class="form-label fw-bold">Post Title <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-lg" autofocus id="title" name="title" required placeholder="Enter a title for your post">
+                            </div>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="author" class="form-label fw-bold">
+                                        Author Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="author" name="author" required placeholder="Enter your name" autofocus>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label for="password" class="form-label fw-bold">
+                                        Password <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control"
+                                               id="password" name="password"
+                                               required minlength="4"
+                                               placeholder="Create a password">
+                                        <button class="btn btn-outline-secondary toggle-password"
+                                                type="button" tabindex="-1">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="content" class="form-label fw-bold">Post Content <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="content" name="content" rows="12" required placeholder="Write your post content here"></textarea>
+                            </div>
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button type="reset" class="btn btn-outline-secondary px-4">
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i>Reset
+                                </button>
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="bi bi-send me-2"></i>Create Post
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm mb-4 bg-light">
+                    <div class="card-body p-4">
+                        <h5 class="card-title">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Posting Guidelines
+                        </h5>
+                        <hr>
+                        <div class="guidelines">
+                            <div class="guideline-item mb-3">
+                                <div class="d-flex">
+                                    <div class="me-3 text-primary">
+                                        <i class="bi bi-1-circle-fill fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Keep it Respectful</h6>
+                                        <p class="small text-muted mb-0">Be considerate and respectful to others in your posts.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="guideline-item mb-3">
+                                <div class="d-flex">
+                                    <div class="me-3 text-primary">
+                                        <i class="bi bi-2-circle-fill fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Be Clear and Concise</h6>
+                                        <p class="small text-muted mb-0">Choose a descriptive title and organize your thoughts clearly.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="guideline-item mb-3">
+                                <div class="d-flex">
+                                    <div class="me-3 text-primary">
+                                        <i class="bi bi-3-circle-fill fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Remember Your Password</h6>
+                                        <p class="small text-muted mb-0">You'll need it to edit or delete your post later.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post Preview Card (shows up when typing) -->
+                <div class="card border-0 shadow-sm mb-4 preview-card d-none">
+                    <div class="card-header bg-white border-bottom-0 py-3">
+                        <h5 class="mb-0">
+                            <i class="bi bi-eye me-2"></i>
+                            Post Preview
+                        </h5>
+                    </div>
+                    <div class="card-body pt-0">
+                        <h3 class="preview-title text-primary mb-3">Your post title will appear here</h3>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar-circle me-2">
+                                <span id="previewInitial">?</span>
+                            </div>
+                            <span class="preview-author fw-bold">Author</span>
+                        </div>
+                        <p class="preview-content text-muted">Your post content preview will appear here as you type...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</div>
+<script>
+    $(document).ready(function (){
+        const togglePasswordBtn = $('.toggle-password');
+        const passwordInput = $('#password');
+        togglePasswordBtn.on('click', function (){
+            const type = passwordInput.attr('type') === 'password' ? 'text' : 'password';
+            passwordInput.attr('type', type);
+            $(this).find('i').toggleClass('bi-eye bi-eye-slash');
+        })
+
+        // Live Preview
+        const titleInput = $('#title');
+        const authorInput = $('#author');
+        const contentInput = $('#content');
+        const previewCard = $('.preview-card');
+        const previewTitle = $('.preview-title');
+        const previewAuthor = $('.preview-author');
+        const previewContent = $('.preview-content');
+        const previewInitial = $('#previewInitial');
+
+        function updatePreview(){
+            previewTitle.text(titleInput.val() || 'Your post title will appear here');
+            if(authorInput.val()){
+                previewAuthor.text(authorInput.val());
+                previewInitial.text(authorInput.val().charAt(0).toUpperCase());
+            } else {
+                previewAuthor.text('Author');
+                previewInitial.text('?');
+            }
+
+            previewContent.text(contentInput.val() || 'Your post content preview will appear here as you type...');
+
+            if(titleInput.val() || authorInput.val() || contentInput.val()){
+                previewCard.removeClass('d-none');
+                setTimeout(() => {
+                    previewCard.addClass('visible');
+                }, 500);
+            } else {
+                previewCard.removeClass('visible');
+                setTimeout(() => {
+                    previewCard.addClass('d-none');
+                }, 500);
+            }
+        }
+
+        // input listener
+        titleInput.on('input', updatePreview);
+        authorInput.on('input', updatePreview);
+        contentInput.on('input', updatePreview);
+
+        // form validation
+        form.on('submit', function(event) {
+            // Reset previous validation states
+            form.find('.is-invalid').each(function() {
+                $(this).removeClass('is-invalid');
+                const feedback = $(this).next('.invalid-feedback');
+                if (feedback.length) {
+                    feedback.remove();
+                }
+            });
+
+            let isValid = true;
+
+            // Validate title
+            if (!titleInput.val().trim()) {
+                showError(titleInput, 'Please enter a post title');
+                isValid = false;
+            }
+
+            // Validate author
+            if (!authorInput.val().trim()) {
+                showError(authorInput, 'Please enter your name');
+                isValid = false;
+            }
+
+            // Validate password
+            if (!passwordInput.val().trim()) {
+                showError(passwordInput.parent(), 'Please create a password', passwordInput);
+                isValid = false;
+            } else if (passwordInput.val().length < 4) {
+                showError(passwordInput.parent(), 'Password must be at least 4 characters', passwordInput);
+                isValid = false;
+            }
+
+            // Validate content
+            if (!contentInput.val().trim()) {
+                showError(contentInput, 'Please enter your post content');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+
+                // Scroll to first error
+                const firstError = form.find('.is-invalid').first();
+                if (firstError.length) {
+                    $('html, body').animate({
+                        scrollTop: firstError.offset().top - 20
+                    }, 'smooth');
+                    firstError.focus();
+                }
+            }
+        });
+
+        function showError(element, message, focusElement) {
+            element.addClass('is-invalid');
+
+            const feedbackElement = $('<div>').addClass('invalid-feedback').text(message);
+
+            element.after(feedbackElement);
+
+            if (focusElement) {
+                focusElement.addClass('is-invalid');
+            }
+        }
+    })
+</script>
+</body>
+</html>

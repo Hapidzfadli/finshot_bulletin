@@ -13,11 +13,11 @@ public interface PostMapper {
     @Select("SELECT * FROM posts WHERE id = #{id}")
     Post getPostById(Long id);
 
-    @Insert("INSERT INTO posts (title, content, author, views, created_at, updated_at) VALUES (#{title}, #{content}, #{author}, #{views}, #{createdAt}, #{updatedAt})")
+    @Insert("INSERT INTO posts (title, content, author, password, views, is_deleted, created_at, updated_at) VALUES (#{title}, #{content}, #{author}, #{password}, #{views}, #{isDeleted}, #{createdAt}, #{updatedAt})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insertPost(Post post);
 
-    @Update("UPDATE posts SET title = #{title}, content = #{content}, author = #{author}, views = #{views}, created_at = #{createdAt}, updated_at = #{updatedAt} WHERE id = #{id}")
+    @Update("UPDATE posts SET title = #{title}, content = #{content}, author = #{author}, views = #{views}, is_deleted = #{isDeleted}, created_at = #{createdAt}, updated_at = #{updatedAt} WHERE id = #{id}")
     void updatePost(Post post);
 
     default void save(Post post) {

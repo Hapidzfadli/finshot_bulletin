@@ -32,7 +32,10 @@ public class Post {
     private String password;
 
     private int views;
-    private boolean isDeleted;
+
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
+    private boolean isDeleted = false;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
