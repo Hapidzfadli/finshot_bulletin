@@ -31,7 +31,8 @@ public class PostController {
     }
 
     @GetMapping("/posts/{id}")
-    public String getPostById(Model model, Long id) {
+    public String getPostById(Model model, @PathVariable Long id) {
+
         Post post = postService.getPostById(id);
 
         if(post == null || post.isDeleted()){
