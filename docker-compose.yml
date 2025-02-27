@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: finshot-bulletin-app
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/finshot_db_test
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=Tsubatsa78
+      - SERVER_PORT=8081
+    restart: always
+    networks:
+      - finshot-network
+
+  db:
+    image: postgres:14
+    container_name: finshot-bulletin-db
+    environment:
+      - POSTGRES_DB=finshot_db_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Tsubatsa78
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - finshot-network
+
+networks:
+  finshot-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
