@@ -1,277 +1,352 @@
-# Panduan Deployment Aplikasi Bulletin Board
+# Finshot Bulletin Board - Deployment Guide
 
-Dokumen ini berisi panduan lengkap untuk melakukan deployment aplikasi Bulletin Board ke domain bulletin.hapidzfadli.com menggunakan Docker, Nginx, dan SSL.
+This guide explains how to deploy the Finshot Bulletin Board application to a production server. The application is a Spring Boot Java application with a PostgreSQL database, containerized using Docker.
 
-## Prasyarat
+## Table of Contents
 
-Sebelum memulai proses deployment, pastikan Anda memiliki hal-hal berikut:
+- [Prerequisites](#prerequisites)
+- [Application Overview](#application-overview)
+- [Deployment Steps](#deployment-steps)
+  - [1. Setting Up the Server](#1-setting-up-the-server)
+  - [2. Preparing the Environment](#2-preparing-the-environment)
+  - [3. Configuring the Application](#3-configuring-the-application)
+  - [4. Deploying with Docker](#4-deploying-with-docker)
+  - [5. Setting Up Nginx as a Reverse Proxy](#5-setting-up-nginx-as-a-reverse-proxy)
+  - [6. Securing with SSL/TLS](#6-securing-with-ssltls)
+  - [7. Testing the Deployment](#7-testing-the-deployment)
+- [Maintenance](#maintenance)
+- [Troubleshooting](#troubleshooting)
 
-1. VPS/Server dengan OS Ubuntu 20.04 atau lebih baru
-2. Akses SSH ke server tersebut
-3. Domain bulletin.hapidzfadli.com yang sudah diarahkan ke IP server Anda
-4. Docker dan Docker Compose terinstal pada server
+## Prerequisites
 
-## Langkah 1: Persiapan Server
+Before you begin, make sure you have:
 
-### Instalasi Dependensi
+- A server with:
+  - Ubuntu 20.04 or newer (or your preferred Linux distribution)
+  - At least 1GB RAM and 10GB storage
+  - SSH access with sudo privileges
+- Domain name configured to point to your server (bulletin.hapidzfadli.com)
+- Basic knowledge of Linux command line, Docker, and networking concepts
+
+## Application Overview
+
+Finshot Bulletin Board is a Java Spring Boot application with the following components:
+
+- **Backend**: Spring Boot application running on port 8081
+- **Database**: PostgreSQL database for storing post data
+- **Containerization**: Docker and Docker Compose for managing containers
+- **Web Server**: Nginx for serving as a reverse proxy (to be installed)
+
+## Deployment Steps
+
+### 1. Setting Up the Server
+
+First, connect to your server via SSH:
 
 ```bash
-# Update paket
+ssh username@your-server-ip
+```
+
+Update the system packages:
+
+```bash
 sudo apt update && sudo apt upgrade -y
-
-# Instalasi dependensi
-sudo apt install -y nginx certbot python3-certbot-nginx git
-
-# Instalasi Docker jika belum ada
-if ! command -v docker &> /dev/null; then
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    sudo sh get-docker.sh
-    sudo usermod -aG docker $USER
-    rm get-docker.sh
-fi
-
-# Instalasi Docker Compose jika belum ada
-if ! command -v docker-compose &> /dev/null; then
-    sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-fi
 ```
 
-### Konfigurasi Firewall
+Install essential tools:
 
 ```bash
-# Konfigurasi UFW (Uncomplicated Firewall)
-sudo ufw allow 'Nginx Full'
-sudo ufw allow ssh
-sudo ufw enable
+sudo apt install -y git curl wget unzip vim
 ```
 
-## Langkah 2: Menyiapkan Proyek
+### 2. Preparing the Environment
 
-### Clone Repository
+#### Install Docker and Docker Compose
+
+Install Docker:
 
 ```bash
-# Buat direktori untuk proyek
-mkdir -p /var/www
-cd /var/www
-
-# Clone repository proyek
-git clone https://github.com/Hapidzfadli/web-bulletin-board.git bulletin-board
-cd bulletin-board
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
 ```
 
-### Menyiapkan File Konfigurasi
-
-Buat file `deploy.sh` untuk mempermudah proses deployment:
+Add your user to the docker group to run Docker without sudo:
 
 ```bash
-cat > deploy.sh << 'EOF'
-#!/bin/bash
-
-# Update sistem
-sudo apt update && sudo apt upgrade -y
-
-# Instalasi dependensi sistem
-curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt install -y nodejs npm apache2 mysql-server
-
-# Instalasi PM2 secara global
-sudo npm install -g pm2
-
-# Konfigurasi MySQL
-sudo mysql -e "CREATE DATABASE IF NOT EXISTS digidesa;"
-sudo mysql -e "CREATE USER IF NOT EXISTS 'prisma'@'localhost' IDENTIFIED BY 'digides21';"
-sudo mysql -e "GRANT ALL PRIVILEGES ON digidesa.* TO 'prisma'@'localhost';"
-sudo mysql -e "FLUSH PRIVILEGES;"
-
-# Konfigurasi environment variables untuk backend
-cat << EOT > backend-bulletin-board/.env
-DATABASE_URL="mysql://prisma:digides21@localhost:3306/digidesa"
-JWT_SECRET=K&18E3w{vhv6{hE_3()&st?4h!4e2r
-EOT
-
-# Konfigurasi environment variables untuk frontend
-cat << EOT > frontend-bulletin-board/.env
-NEXT_PUBLIC_API_URL = ''
-EOT
-
-# Instalasi dependensi dan build untuk backend
-cd backend-bulletin-board
-npm install -g @nestjs/cli
-npm install
-npx prisma migrate deploy
-npm run build
-
-# Instalasi dependensi dan build untuk frontend
-cd ../frontend-bulletin-board
-npm install
-npm run build
-
-# Konfigurasi PM2
-cd ../backend-bulletin-board
-pm2 start npm --name "backend-bulletin-board" -- start
-cd ../frontend-bulletin-board
-pm2 start npm --name "frontend-bulletin-board" -- start
-
-pm2 save
-pm2 startup
-
-echo "Deployment selesai!"
-EOF
-
-chmod +x deploy.sh
+sudo usermod -aG docker $USER
 ```
 
-## Langkah 3: Konfigurasi Nginx
+Log out and log back in for the group changes to take effect.
 
-Buat konfigurasi Nginx untuk bulletin.hapidzfadli.com:
+Install Docker Compose:
+
+```bash
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
+Verify installations:
+
+```bash
+docker --version
+docker-compose --version
+```
+
+#### Install Nginx
+
+```bash
+sudo apt install -y nginx
+```
+
+Start and enable Nginx:
+
+```bash
+sudo systemctl start nginx
+sudo systemctl enable nginx
+```
+
+### 3. Configuring the Application
+
+#### Clone the Repository
+
+Create a directory for the application and clone your code:
+
+```bash
+mkdir -p /var/www/bulletin
+cd /var/www/bulletin
+git clone https://your-git-repository-url.git .
+```
+
+If you don't have a Git repository, you can simply upload your files using SCP or SFTP:
+
+```bash
+# From your local machine
+scp -r /path/to/your/project/* username@your-server-ip:/var/www/bulletin/
+```
+
+#### Update Docker Compose Configuration
+
+Review and update the `docker-compose.yml` file if needed:
+
+```yaml
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: finshot-bulletin-app
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/finshot_db_test
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=Tsubatsa78
+      - SERVER_PORT=8081
+    restart: always
+    networks:
+      - finshot-network
+
+  db:
+    image: postgres:14
+    container_name: finshot-bulletin-db
+    environment:
+      - POSTGRES_DB=finshot_db_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Tsubatsa78
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - finshot-network
+
+networks:
+  finshot-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+```
+
+> ⚠️ **Important Security Note**: In a production environment, you should:
+> 1. Use more secure passwords
+> 2. Consider using environment variables or Docker secrets instead of hardcoding credentials
+> 3. Limit database port exposure (remove the ports section or only bind to localhost)
+
+### 4. Deploying with Docker
+
+Build and start the Docker containers:
+
+```bash
+cd /var/www/bulletin
+docker-compose up -d
+```
+
+This command:
+- Builds the Spring Boot application container
+- Creates a PostgreSQL database container
+- Sets up the necessary network
+- Starts both containers in detached mode
+
+Verify the containers are running:
+
+```bash
+docker-compose ps
+```
+
+Check the application logs:
+
+```bash
+docker-compose logs -f app
+```
+
+### 5. Setting Up Nginx as a Reverse Proxy
+
+Create an Nginx configuration file for your domain:
 
 ```bash
 sudo nano /etc/nginx/sites-available/bulletin.hapidzfadli.com
 ```
 
-Isi dengan konfigurasi berikut:
+Add the following configuration:
 
 ```nginx
 server {
     listen 80;
     server_name bulletin.hapidzfadli.com;
-    
+
     location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
+        proxy_pass http://localhost:8081;
         proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-    
-    location /api {
-        proxy_pass http://localhost:3001/api;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 ```
 
-Aktifkan konfigurasi dan restart Nginx:
+Enable the site by creating a symbolic link:
 
 ```bash
 sudo ln -s /etc/nginx/sites-available/bulletin.hapidzfadli.com /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
 ```
 
-## Langkah 4: Menginstal Sertifikat SSL
+Test the Nginx configuration:
 
-Gunakan Certbot untuk menginstal SSL otomatis:
+```bash
+sudo nginx -t
+```
+
+If the test is successful, reload Nginx:
+
+```bash
+sudo systemctl reload nginx
+```
+
+### 6. Securing with SSL/TLS
+
+Install Certbot for obtaining a free SSL certificate from Let's Encrypt:
+
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+```
+
+Obtain a certificate and configure Nginx:
 
 ```bash
 sudo certbot --nginx -d bulletin.hapidzfadli.com
 ```
 
-Ikuti petunjuk di layar untuk menyelesaikan proses instalasi sertifikat. Certbot akan mengupdate konfigurasi Nginx Anda secara otomatis untuk menggunakan HTTPS.
+Follow the prompts to complete the certificate setup. Certbot will automatically update your Nginx configuration to use HTTPS.
 
-## Langkah 5: Menjalankan Aplikasi
+### 7. Testing the Deployment
 
-Jalankan script deployment:
+Open your browser and navigate to:
 
-```bash
-./deploy.sh
+```
+https://bulletin.hapidzfadli.com
 ```
 
-Script ini akan:
-1. Menginstal semua dependensi yang diperlukan
-2. Mengkonfigurasi database MySQL
-3. Membuat file environment variables
-4. Membangun aplikasi frontend dan backend
-5. Mengkonfigurasi PM2 untuk mengelola proses aplikasi
+You should see your Finshot Bulletin Board application running securely.
 
-## Langkah 6: Verifikasi Deployment
+## Maintenance
 
-Setelah proses deployment selesai, aplikasi Bulletin Board Anda seharusnya dapat diakses melalui https://bulletin.hapidzfadli.com.
+### Updating the Application
 
-Untuk memverifikasi bahwa aplikasi berjalan dengan benar:
+To update your application with new code:
+
+1. Pull the latest changes or upload new files to your server
+2. Rebuild and restart the containers:
 
 ```bash
-# Periksa status PM2
-pm2 status
-
-# Periksa log aplikasi
-pm2 logs
-
-# Uji akses ke aplikasi
-curl -I https://bulletin.hapidzfadli.com
+cd /var/www/bulletin
+git pull  # If using Git
+docker-compose down
+docker-compose up -d --build
 ```
 
-## Pemeliharaan
+### Database Backup
 
-### Memperbarui Aplikasi
-
-Untuk memperbarui aplikasi ke versi terbaru:
+To backup the PostgreSQL database:
 
 ```bash
-cd /var/www/bulletin-board
-
-# Pull perubahan terbaru
-git pull
-
-# Jalankan kembali script deployment
-./deploy.sh
+docker exec finshot-bulletin-db pg_dump -U postgres finshot_db_test > /path/to/backup.sql
 ```
 
-### Memperbarui Sertifikat SSL
+Schedule regular backups using cron.
 
-Sertifikat Let's Encrypt akan diperbarui secara otomatis oleh Certbot. Anda dapat memverifikasi ini dengan:
+### Monitoring Logs
+
+To view application logs:
 
 ```bash
-sudo systemctl status certbot.timer
+docker-compose logs -f app
 ```
 
-### Backup Database
-
-Untuk membuat backup database:
+To view database logs:
 
 ```bash
-# Backup database
-mysqldump -u prisma -p digidesa > /var/backups/digidesa_$(date +%Y%m%d).sql
+docker-compose logs -f db
 ```
 
-## Pemecahan Masalah
+## Troubleshooting
 
-### Aplikasi Tidak Dapat Diakses
+### Common Issues
 
-1. Periksa status Nginx:
-   ```bash
-   sudo systemctl status nginx
-   ```
+1. **Application not starting:**
+   - Check the application logs: `docker-compose logs app`
+   - Verify database connection settings in `docker-compose.yml`
 
-2. Periksa status aplikasi:
-   ```bash
-   pm2 status
-   ```
+2. **Database connection errors:**
+   - Ensure the database container is running: `docker ps`
+   - Check database logs: `docker-compose logs db`
 
-3. Periksa log Nginx:
-   ```bash
-   sudo tail -f /var/log/nginx/error.log
-   ```
+3. **Nginx proxy issues:**
+   - Check Nginx error logs: `sudo tail -f /var/log/nginx/error.log`
+   - Verify that port 8081 is accessible from Nginx: `curl localhost:8081`
 
-4. Periksa log aplikasi:
-   ```bash
-   pm2 logs
-   ```
+4. **SSL certificate problems:**
+   - Run Certbot again: `sudo certbot --nginx -d bulletin.hapidzfadli.com`
+   - Check certificate renewal status: `sudo certbot certificates`
 
-### Sertifikat SSL Kedaluwarsa
+### Restarting Services
 
-Jika sertifikat SSL Anda kedaluwarsa, Anda dapat memperbaruinya secara manual:
+To restart the entire application:
 
 ```bash
-sudo certbot renew
+cd /var/www/bulletin
+docker-compose restart
 ```
 
-## Kesimpulan
+To restart Nginx:
 
-Sekarang Anda telah berhasil men-deploy aplikasi Bulletin Board ke domain bulletin.hapidzfadli.com dengan HTTPS. Aplikasi ini menggunakan Nginx sebagai reverse proxy, PM2 untuk manajemen proses, dan Let's Encrypt untuk sertifikat SSL.
+```bash
+sudo systemctl restart nginx
+```
+
+---
+
+This deployment guide provides a foundation for setting up your Finshot Bulletin Board application. Adjust the configurations as needed for your specific requirements and server environment.
